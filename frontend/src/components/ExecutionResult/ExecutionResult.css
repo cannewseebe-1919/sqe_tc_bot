@@ -1,0 +1,239 @@
+.execution-panel {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.exec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+}
+
+.exec-header.running {
+  background: #1976d2;
+}
+
+.exec-header.success {
+  background: #2e7d32;
+}
+
+.exec-header.failure {
+  background: #c62828;
+}
+
+.exec-duration {
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #e0e0e0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #42a5f5;
+  transition: width 0.3s;
+}
+
+.current-step {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #555;
+}
+
+.exec-summary {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-item {
+  font-size: 13px;
+  color: #666;
+}
+
+.summary-item strong {
+  margin-left: 4px;
+  font-size: 16px;
+}
+
+.summary-item.passed strong {
+  color: #2e7d32;
+}
+
+.summary-item.failed strong {
+  color: #c62828;
+}
+
+.abort-reason {
+  padding: 8px 16px;
+  background: #fff3e0;
+  color: #e65100;
+  font-size: 13px;
+}
+
+/* Steps Timeline */
+.steps-timeline {
+  padding: 8px;
+}
+
+.step-item {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.1s;
+}
+
+.step-header:hover {
+  background: #f5f5f5;
+}
+
+.step-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.step-icon.passed {
+  background: #43a047;
+}
+
+.step-icon.failed {
+  background: #e53935;
+}
+
+.step-icon.skipped {
+  background: #9e9e9e;
+}
+
+.step-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.step-duration {
+  color: #999;
+  font-size: 12px;
+}
+
+.step-error-badge {
+  background: #ffebee;
+  color: #c62828;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.step-detail {
+  border-top: 1px solid #eee;
+  padding: 10px 12px;
+  background: #fafafa;
+}
+
+.step-log pre {
+  margin: 0;
+  font-size: 12px;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: #263238;
+  color: #cfd8dc;
+  padding: 10px;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.step-screenshot {
+  margin-top: 8px;
+}
+
+.step-screenshot img {
+  max-width: 200px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.step-screenshot img:hover {
+  opacity: 0.85;
+}
+
+/* Crash logs */
+.crash-logs {
+  margin: 8px;
+  border: 1px solid #ffcdd2;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.crash-logs-title {
+  padding: 8px 12px;
+  background: #ffebee;
+  color: #c62828;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.crash-log-item {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border-top: 1px solid #ffcdd2;
+}
+
+.exec-device-info {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+  border-top: 1px solid #eee;
+}
+
+/* Screenshot Modal */
+.screenshot-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.screenshot-modal img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+}

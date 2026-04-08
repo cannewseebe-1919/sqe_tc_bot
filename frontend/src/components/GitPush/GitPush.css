@@ -1,0 +1,86 @@
+.git-push-panel {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.git-push-header {
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f5f5f5;
+}
+
+.git-push-form {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.git-push-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.git-push-form label span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.git-push-form input,
+.git-push-form textarea {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.git-push-form input:focus,
+.git-push-form textarea:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+.push-btn {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.push-btn:hover:not(:disabled) {
+  background: #1a1a1a;
+}
+
+.push-btn:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+}
+
+.push-result {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.push-result.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.push-result.error {
+  background: #ffebee;
+  color: #c62828;
+}

@@ -12,7 +12,8 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create tables on startup
+    # In production, use `alembic upgrade head` instead of create_all.
+    # create_all is kept as fallback for dev/testing convenience.
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
