@@ -12,11 +12,22 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    import logging
+    logger = logging.getLogger(__name__)
+
+    if settings.JWT_SECRET == "change-me-in-production":
+        logger.warning(
+            "JWT_SECRET is using the default value! "
+            "Set a strong secret in .env for production."
+        )
+
     # In production, use `alembic upgrade head` instead of create_all.
-    # create_all is kept as fallback for dev/testing convenience.
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+
+    from app.services.executor_client import close_client
+    await close_client()
     await engine.dispose()
 
 

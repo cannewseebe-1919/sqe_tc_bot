@@ -24,29 +24,39 @@ async def git_push(
     if not tc:
         raise HTTPException(status_code=404, detail="TestCase not found")
 
-    # Insert token into repo URL for auth
-    repo_url = req.repo_url
-    if repo_url.startswith("https://"):
-        repo_url = repo_url.replace("https://", f"https://oauth2:{req.token}@")
-
     commit_message = req.commit_message or f"Add test case: {tc.title}"
 
     with tempfile.TemporaryDirectory() as tmpdir:
+        # Use GIT_ASKPASS to pass token securely (not embedded in URL)
+        askpass_script = os.path.join(tmpdir, "_askpass.sh")
+        with open(askpass_script, "w") as f:
+            f.write(f"#!/bin/sh\necho {req.token}\n")
+        os.chmod(askpass_script, 0o700)
+
+        clone_env = os.environ.copy()
+        clone_env["GIT_ASKPASS"] = askpass_script
+        clone_env["GIT_TERMINAL_PROMPT"] = "0"
+
+        clone_dir = os.path.join(tmpdir, "repo")
         try:
-            repo = Repo.clone_from(repo_url, tmpdir, branch=req.branch)
+            repo = Repo.clone_from(
+                req.repo_url, clone_dir, branch=req.branch,
+                env=clone_env,
+            )
         except Exception:
-            repo = Repo.clone_from(repo_url, tmpdir)
+            repo = Repo.clone_from(req.repo_url, clone_dir, env=clone_env)
             repo.git.checkout("-b", req.branch)
 
         # Write TC file
         filename = f"tc_{tc.id.replace('-', '_')}.py"
-        filepath = os.path.join(tmpdir, filename)
+        filepath = os.path.join(clone_dir, filename)
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(tc.code)
 
         repo.index.add([filename])
         commit = repo.index.commit(commit_message)
-        repo.remote("origin").push(req.branch)
+        with repo.git.custom_environment(**clone_env):
+            repo.remote("origin").push(req.branch)
 
         # Update DB
         git_info = GitInfo(
