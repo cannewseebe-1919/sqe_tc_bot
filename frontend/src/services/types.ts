@@ -125,3 +125,18 @@ export interface User {
   name: string;
   department?: string;
 }
+
+// Chat API response (from backend)
+export interface ChatResponse {
+  reply: string;
+  code?: string | null;
+  test_case_id?: string | null;
+  conversation_id: string;
+}
+
+// File upload response
+export interface FileUploadResponse {
+  filename: string;
+  extracted_text: string;
+  char_count: number;
+}

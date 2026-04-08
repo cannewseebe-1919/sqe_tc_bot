@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "sqe-executor": {
+      "command": "python",
+      "args": ["backend/mcp_server.py"],
+      "env": {
+        "EXECUTOR_BASE_URL": "http://localhost:8001",
+        "BACKEND_URL": "http://localhost:8000",
+        "EXECUTOR_JWT_TOKEN": ""
+      }
+    }
+  }
+}

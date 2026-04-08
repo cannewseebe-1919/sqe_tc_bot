@@ -1,6 +1,8 @@
 import axios from 'axios';
 import type {
   ChatMessage,
+  ChatResponse,
+  FileUploadResponse,
   Device,
   ExecutionRequest,
   ExecutionResponse,
@@ -16,25 +18,34 @@ const api = axios.create({
   withCredentials: true,
 });
 
+const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true';
+const DEV_USER: User = { name: '개발자', email: 'dev@localhost' };
+
 // Auth
 export const authApi = {
   getLoginUrl: () => api.get<{ url: string }>('/auth/saml/login'),
-  getCurrentUser: () => api.get<User>('/auth/me'),
+  getCurrentUser: () =>
+    DEV_MODE
+      ? Promise.resolve({ data: DEV_USER })
+      : api.get<User>('/auth/me'),
   logout: () => api.post('/auth/logout'),
 };
 
 // Chat
 export const chatApi = {
-  sendMessage: (message: string, attachments?: File[]) => {
+  uploadFile: (file: File) => {
     const formData = new FormData();
-    formData.append('message', message);
-    if (attachments) {
-      attachments.forEach((f) => formData.append('files', f));
-    }
-    return api.post<ChatMessage>('/chat', formData, {
+    formData.append('file', file);
+    return api.post<FileUploadResponse>('/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+  sendMessage: (message: string, conversationId?: string, fileContent?: string) =>
+    api.post<ChatResponse>('/chat', {
+      message,
+      conversation_id: conversationId ?? null,
+      file_content: fileContent ?? null,
+    }),
   getHistory: (sessionId: string) =>
     api.get<ChatMessage[]>(`/chat/history/${sessionId}`),
 };

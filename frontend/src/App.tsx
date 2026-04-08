@@ -3,8 +3,11 @@ import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
 import './App.css';
 
+const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true';
+
 function App() {
   const token = localStorage.getItem('token');
+  const isAuthenticated = DEV_MODE || !!token;
 
   return (
     <BrowserRouter>
@@ -16,7 +19,7 @@ function App() {
         />
         <Route
           path="/"
-          element={token ? <MainPage /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <MainPage /> : <Navigate to="/login" />}
         />
       </Routes>
     </BrowserRouter>

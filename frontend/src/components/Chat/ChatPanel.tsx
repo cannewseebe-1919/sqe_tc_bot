@@ -20,6 +20,7 @@ export default function ChatPanel({ onCodeGenerated }: Props) {
     },
   ]);
   const [loading, setLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,8 +43,24 @@ export default function ChatPanel({ onCodeGenerated }: Props) {
     setLoading(true);
 
     try {
-      const { data } = await chatApi.sendMessage(text, files.length > 0 ? files : undefined);
-      setMessages((prev) => [...prev, data]);
+      // 파일이 있으면 먼저 업로드해서 텍스트 추출
+      let fileContent: string | undefined;
+      if (files.length > 0) {
+        const uploads = await Promise.all(files.map((f) => chatApi.uploadFile(f)));
+        fileContent = uploads.map((r) => r.data.extracted_text).join('\n\n');
+      }
+
+      const { data } = await chatApi.sendMessage(text, conversationId, fileContent);
+      setConversationId(data.conversation_id);
+
+      const assistantMsg: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: data.reply,
+        code: data.code ?? undefined,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, assistantMsg]);
     } catch {
       setMessages((prev) => [
         ...prev,
