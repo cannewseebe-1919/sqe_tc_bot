@@ -1,0 +1,44 @@
+# 환경변수:
+#   BACKEND_HOST  - tc_bot 백엔드 호스트 (기본: backend)
+#   BACKEND_PORT  - tc_bot 백엔드 포트 (기본: 8000)
+#   EXECUTOR_HOST - tc_executor 백엔드 호스트
+#   EXECUTOR_PORT - tc_executor 백엔드 포트 (기본: 8001)
+
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # ── tc_bot 백엔드 API 프록시 ─────────────────
+    location /api/ {
+        proxy_pass http://${BACKEND_HOST}:${BACKEND_PORT}/api/;
+        proxy_set_header Host             $host;
+        proxy_set_header X-Real-IP        $remote_addr;
+        proxy_set_header X-Forwarded-For  $proxy_add_x_forwarded_for;
+        proxy_read_timeout 120s;
+    }
+
+    # SAML 인증 콜백
+    location /api/auth/ {
+        proxy_pass http://${BACKEND_HOST}:${BACKEND_PORT}/api/auth/;
+        proxy_set_header Host             $host;
+        proxy_set_header X-Real-IP        $remote_addr;
+        proxy_set_header X-Forwarded-For  $proxy_add_x_forwarded_for;
+    }
+
+    # ── tc_executor REST API 프록시 ───────────────
+    location /executor-api/ {
+        proxy_pass http://${EXECUTOR_HOST}:${EXECUTOR_PORT}/;
+        proxy_set_header Host             $host;
+        proxy_set_header X-Real-IP        $remote_addr;
+        proxy_set_header X-Forwarded-For  $proxy_add_x_forwarded_for;
+        proxy_read_timeout 60s;
+    }
+
+    # ── SPA fallback ──────────────────────────────
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

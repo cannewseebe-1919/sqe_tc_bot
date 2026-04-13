@@ -1,29 +1,64 @@
+# ================================================================
+# sqe_tc_bot - docker-compose.yml
+# 실행 전 .env 파일을 작성하세요 (backend/.env.example 참고)
+# ================================================================
+
+x-build-args: &internal-build-args
+  INTERNAL_REGISTRY: ${INTERNAL_REGISTRY:-docker-registry.internal}
+  APT_MIRROR: ${APT_MIRROR:-http://apt-mirror.internal/ubuntu}
+  PIP_INDEX_URL: ${PIP_INDEX_URL:-http://pypi-mirror.internal/simple}
+  PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-pypi-mirror.internal}
+
 services:
+  # ── 백엔드 ─────────────────────────────────────────────────────
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        <<: *internal-build-args
+    image: ${INTERNAL_REGISTRY:-docker-registry.internal}/sqe-tc-bot-backend:latest
     ports:
       - "8000:8000"
+    env_file:
+      - ./backend/.env
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/tc_generator
+      - DATABASE_URL=postgresql+asyncpg://postgres:${DB_PASSWORD:-postgres}@db:5432/tc_generator
       - REDIS_URL=redis://redis:6379/0
-      - DTGPT_BASE_URL=${DTGPT_BASE_URL:-https://dtgpt.example.com/v1}
-      - DTGPT_API_KEY=${DTGPT_API_KEY:-}
-      - EXECUTOR_BASE_URL=${EXECUTOR_BASE_URL:-http://host.docker.internal:8001}
-      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
-    volumes:
-      - ./backend:/app
+    restart: unless-stopped
 
+  # ── 프론트엔드 (nginx) ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        <<: *internal-build-args
+        NPM_REGISTRY: ${NPM_REGISTRY:-http://npm-registry.internal}
+        # executor 서버의 WebSocket 주소 (빌드 시점에 결정됨)
+        VITE_EXECUTOR_WS_URL: ${VITE_EXECUTOR_WS_URL:-ws://localhost:8001}
+    image: ${INTERNAL_REGISTRY:-docker-registry.internal}/sqe-tc-bot-frontend:latest
+    ports:
+      - "3000:80"
+    environment:
+      - BACKEND_HOST=backend
+      - BACKEND_PORT=8000
+      - EXECUTOR_HOST=${EXECUTOR_HOST:-executor-server-ip}
+      - EXECUTOR_PORT=${EXECUTOR_PORT:-8001}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ── PostgreSQL ─────────────────────────────────────────────────
   db:
-    image: postgres:16-alpine
+    image: ${INTERNAL_REGISTRY:-docker-registry.internal}/postgres:16-alpine
     environment:
       POSTGRES_DB: tc_generator
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
@@ -33,11 +68,18 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
+  # ── Redis ──────────────────────────────────────────────────────
   redis:
-    image: redis:7-alpine
+    image: ${INTERNAL_REGISTRY:-docker-registry.internal}/redis:7-alpine
     ports:
       - "6379:6379"
+    volumes:
+      - redisdata:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
 
 volumes:
   pgdata:
+  redisdata:
