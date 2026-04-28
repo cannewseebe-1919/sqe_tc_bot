@@ -83,8 +83,8 @@ async def execution_result_callback(
     for i, step in enumerate(result.steps):
         db.add(ExecutionStep(
             execution_id=result.execution_id,
-            step_name=step.name,
-            step_order=i + 1,
+            step_name=step.step_name,
+            step_order=step.step_order if step.step_order else i + 1,
             status=step.status,
             duration_sec=step.duration_sec,
             screenshot_path=step.screenshot_url,

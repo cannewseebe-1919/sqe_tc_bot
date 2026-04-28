@@ -64,7 +64,9 @@ class ExecutionStatusResponse(BaseModel):
 
 
 class StepResult(BaseModel):
-    name: str
+    step_name: str
+    step_order: int = 0
+    execution_id: str = ""
     status: str
     duration_sec: float
     screenshot_url: str | None = None
