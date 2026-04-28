@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Env
+.env
+*.env.local
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# SQLite dev DB
+*.db
+*.db-shm
+*.db-wal
+
+# Claude Code memory
+.claude/
