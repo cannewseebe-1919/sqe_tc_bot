@@ -56,6 +56,7 @@ async def execute_test(
 ) -> dict:
     """
     테스트 코드를 지정한 단말에서 실행합니다.
+    tc_bot 백엔드를 경유하여 실행 기록이 DB에 저장되고 콜백이 정상 처리됩니다.
 
     Args:
         test_code: 실행할 Python 테스트 코드 (TestCase SDK 기반)
@@ -67,14 +68,12 @@ async def execute_test(
     """
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post(
-            f"{EXECUTOR_BASE_URL}/api/execute",
+            f"{BACKEND_URL}/api/execute-code",
             json={
                 "test_code": test_code,
                 "device_id": device_id,
                 "requested_by": requested_by,
-                "callback_url": f"{BACKEND_URL}/api/execution-result",
             },
-            headers=_auth_headers(),
         )
         resp.raise_for_status()
         return resp.json()

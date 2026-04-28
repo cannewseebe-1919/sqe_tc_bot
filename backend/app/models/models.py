@@ -44,7 +44,7 @@ class Execution(Base):
     __tablename__ = "executions"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
-    test_case_id: Mapped[str] = mapped_column(String(36), ForeignKey("test_cases.id"))
+    test_case_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("test_cases.id"), nullable=True)
     device_id: Mapped[str] = mapped_column(String(255))
     requested_by: Mapped[str] = mapped_column(String(255))
     status: Mapped[str] = mapped_column(String(20), default="QUEUED")  # QUEUED|RUNNING|COMPLETED|FAILED|ABORTED
@@ -53,7 +53,7 @@ class Execution(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime)
     total_duration_sec: Mapped[float | None] = mapped_column(Float)
 
-    test_case: Mapped["TestCase"] = relationship(back_populates="executions")
+    test_case: Mapped["TestCase | None"] = relationship(back_populates="executions")
     steps: Mapped[list["ExecutionStep"]] = relationship(back_populates="execution")
 
 

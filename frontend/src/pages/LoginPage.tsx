@@ -15,7 +15,8 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h1>TC Generator</h1>
+        <div className="login-logo">TC</div>
+        <h1>SQE TC Generator</h1>
         <p>AI 기반 테스트 케이스 자동 생성 플랫폼</p>
         <button className="sso-btn" onClick={handleLogin}>
           SSO 로그인

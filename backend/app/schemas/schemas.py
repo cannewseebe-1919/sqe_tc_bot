@@ -55,6 +55,13 @@ class ExecutionRequest(BaseModel):
     device_id: str
 
 
+class ExecuteCodeRequest(BaseModel):
+    """MCP에서 test_code를 직접 실행할 때 사용."""
+    test_code: str
+    device_id: str
+    requested_by: str = "mcp-user"
+
+
 class ExecutionStatusResponse(BaseModel):
     execution_id: str
     status: str

@@ -25,7 +25,13 @@ export default function MainPage() {
   return (
     <div className="main-page">
       <header className="top-bar">
-        <div className="top-bar-title">TC Generator</div>
+        <div className="top-bar-brand">
+          <div className="top-bar-logo">TC</div>
+          <div>
+            <div className="top-bar-title">SQE TC Generator</div>
+            <div className="top-bar-subtitle">AI-Powered Test Case Builder</div>
+          </div>
+        </div>
         <div className="top-bar-user">
           {user ? (
             <>
@@ -38,7 +44,7 @@ export default function MainPage() {
               </button>
             </>
           ) : (
-            <a href="/login">로그인</a>
+            <a href="/login" style={{ color: '#6366f1' }}>로그인</a>
           )}
         </div>
       </header>

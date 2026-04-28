@@ -8,6 +8,7 @@ from app.models.database import get_db
 from app.models.models import Execution, ExecutionStep, TestCase
 from app.schemas.schemas import (
     ExecutionRequest,
+    ExecuteCodeRequest,
     ExecutionResultCallback,
     ExecutionStatusResponse,
     DeviceListResponse,
@@ -50,6 +51,33 @@ async def execute_test(
     db.add(execution)
     await db.commit()
 
+    return ExecutionStatusResponse(
+        execution_id=result["execution_id"],
+        status=result["status"],
+    )
+
+
+@router.post("/execute-code", response_model=ExecutionStatusResponse)
+async def execute_code_direct(
+    req: ExecuteCodeRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """MCP 서버에서 test_code를 직접 실행할 때 사용. 인증 불필요."""
+    result = await request_execution(
+        test_code=req.test_code,
+        device_id=req.device_id,
+        requested_by=req.requested_by,
+    )
+    execution = Execution(
+        id=result["execution_id"],
+        test_case_id=None,
+        device_id=req.device_id,
+        requested_by=req.requested_by,
+        status=result["status"],
+        queue_position=result.get("queue_position", 0),
+    )
+    db.add(execution)
+    await db.commit()
     return ExecutionStatusResponse(
         execution_id=result["execution_id"],
         status=result["status"],
