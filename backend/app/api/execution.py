@@ -112,7 +112,7 @@ async def execution_result_callback(
         db.add(ExecutionStep(
             execution_id=result.execution_id,
             step_name=step.step_name,
-            step_order=step.step_order if step.step_order else i + 1,
+            step_order=int(step.step_order) if step.step_order else i + 1,
             status=step.status,
             duration_sec=step.duration_sec,
             screenshot_path=step.screenshot_url,
@@ -120,5 +120,9 @@ async def execution_result_callback(
             error_type=step.error_type,
         ))
 
-    await db.commit()
+    try:
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="결과 저장에 실패했습니다.")
     return {"status": "ok"}

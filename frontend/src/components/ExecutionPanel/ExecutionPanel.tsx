@@ -25,6 +25,7 @@ export default function ExecutionPanel({ code, user, testCaseId, resetKey }: Pro
   const [execResult, setExecResult] = useState<ExecResultType | null>(null);
   const [showGitPush, setShowGitPush] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // 새 코드가 생성될 때 상태 초기화
   useEffect(() => {
@@ -60,13 +61,18 @@ export default function ExecutionPanel({ code, user, testCaseId, resetKey }: Pro
       wsRef.current = ws;
 
       ws.onmessage = (event) => {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'status') {
-          setExecStatus(msg.data as ExecutionStatus);
-        } else if (msg.type === 'result') {
-          setExecResult(msg.data as ExecResultType);
-          setExecStatus(null);
-          setExecuting(false);
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'status') {
+            setExecStatus(msg.data as ExecutionStatus);
+          } else if (msg.type === 'result') {
+            setExecResult(msg.data as ExecResultType);
+            setExecStatus(null);
+            setExecuting(false);
+            ws.close();
+          }
+        } catch {
+          pollStatus(data.execution_id);
           ws.close();
         }
       };
@@ -85,20 +91,23 @@ export default function ExecutionPanel({ code, user, testCaseId, resetKey }: Pro
     }
   };
 
-  const pollStatus = async (execId: string) => {
-    const interval = setInterval(async () => {
+  const pollStatus = (execId: string) => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(async () => {
       try {
         const { data } = await executionApi.getStatus(execId);
         setExecStatus(data);
         if (data.status === 'COMPLETED' || data.status === 'FAILED' || data.status === 'ABORTED') {
-          clearInterval(interval);
+          clearInterval(intervalRef.current!);
+          intervalRef.current = null;
           const resultResp = await executionApi.getResult(execId);
           setExecResult(resultResp.data);
           setExecStatus(null);
           setExecuting(false);
         }
       } catch {
-        clearInterval(interval);
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
         setExecuting(false);
       }
     }, 2000);
@@ -107,6 +116,7 @@ export default function ExecutionPanel({ code, user, testCaseId, resetKey }: Pro
   useEffect(() => {
     return () => {
       wsRef.current?.close();
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
 
